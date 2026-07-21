@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Travel — Planifica tu viaje</title>
+<title>Smart Travel — Plan your trip</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -333,7 +333,7 @@
     </svg>
   </div>
   <h1>Smart Travel</h1>
-  <p>Planifica tu viaje</p>
+  <p>Plan your trip</p>
 </div>
 
 <!-- ============================================================
@@ -372,36 +372,36 @@
       <h1>Smart Travel</h1>
     </div>
 
-    <label class="field-label first">Destino</label>
-    <input class="destination-input" id="destinationInput" type="text" placeholder="¿A dónde vas? Ej. Madrid, España" />
+    <label class="field-label first">Destination</label>
+    <input class="destination-input" id="destinationInput" type="text" placeholder="Where are you headed? E.g. Madrid, Spain" />
 
-    <label class="field-label">Ruta</label>
+    <label class="field-label">Route</label>
     <div class="route-row">
       <div class="route-field departure">
-        <label>Salida</label>
-        <input id="departureInput" type="text" placeholder="Ciudad de origen" />
+        <label>Departure</label>
+        <input id="departureInput" type="text" placeholder="Origin city" />
       </div>
-      <button class="route-swap" id="swapBtn" title="Intercambiar" type="button">⇄</button>
+      <button class="route-swap" id="swapBtn" title="Swap" type="button">⇄</button>
       <div class="route-field">
-        <label>Llegada</label>
-        <input id="arrivalInput" type="text" placeholder="Ciudad de llegada" />
+        <label>Arrival</label>
+        <input id="arrivalInput" type="text" placeholder="Arrival city" />
       </div>
     </div>
 
-    <label class="field-label">Transporte</label>
+    <label class="field-label">Transportation</label>
     <div class="transport-list" id="transportList">
-      <div class="transport-opt" data-t="bus"><span class="icon">🚌</span><span class="label">Autobús</span></div>
-      <div class="transport-opt" data-t="train"><span class="icon">🚆</span><span class="label">Tren</span></div>
+      <div class="transport-opt" data-t="bus"><span class="icon">🚌</span><span class="label">Bus</span></div>
+      <div class="transport-opt" data-t="train"><span class="icon">🚆</span><span class="label">Train</span></div>
       <div class="transport-opt" data-t="metro"><span class="icon">🚇</span><span class="label">Metro</span></div>
-      <div class="transport-opt" data-t="plane"><span class="icon">✈️</span><span class="label">Avión</span></div>
+      <div class="transport-opt" data-t="plane"><span class="icon">✈️</span><span class="label">Plane</span></div>
       <div class="transport-opt" data-t="taxi"><span class="icon">🚕</span><span class="label">Taxi / Uber</span></div>
-      <div class="transport-opt" data-t="walk"><span class="icon">🚶</span><span class="label">A pie</span></div>
+      <div class="transport-opt" data-t="walk"><span class="icon">🚶</span><span class="label">Walk</span></div>
     </div>
   </div>
 
   <div class="cta-bar">
     <button class="start-btn" id="startTripBtn" disabled>Start Trip</button>
-    <div class="hint-text">Ingresa tu destino para comenzar</div>
+    <div class="hint-text">Enter your destination to get started</div>
   </div>
 </div>
 
@@ -414,29 +414,29 @@
       <div class="results-top">
         <button class="back-btn" id="backBtn">←</button>
         <div>
-          <h2 id="resultsTitle">Tu viaje</h2>
+          <h2 id="resultsTitle">Your trip</h2>
           <p id="resultsSubtitle">—</p>
         </div>
       </div>
 
       <div class="status-line">
         <span class="pulse-dot off" id="statusDot"></span>
-        <span id="statusText">Preparando resultados…</span>
+        <span id="statusText">Preparing results…</span>
       </div>
 
       <div class="chips" id="chips">
-        <div class="chip active" data-cat="hotel"><span class="dot" style="background:var(--gold)"></span>Hospedaje <span class="count" id="count-hotel">0</span></div>
-        <div class="chip active" data-cat="transit"><span class="dot" style="background:var(--sage)"></span>Transporte <span class="count" id="count-transit">0</span></div>
-        <div class="chip active" data-cat="safe"><span class="dot" style="background:var(--terracotta)"></span>Estaciones seguras <span class="count" id="count-safe">0</span></div>
-        <div class="chip active" data-cat="toilet"><span class="dot" style="background:var(--dusk)"></span>Baños <span class="count" id="count-toilet">0</span></div>
+        <div class="chip active" data-cat="hotel"><span class="dot" style="background:var(--gold)"></span>Lodging <span class="count" id="count-hotel">0</span></div>
+        <div class="chip active" data-cat="transit"><span class="dot" style="background:var(--sage)"></span>Transportation <span class="count" id="count-transit">0</span></div>
+        <div class="chip active" data-cat="safe"><span class="dot" style="background:var(--terracotta)"></span>Safe stations <span class="count" id="count-safe">0</span></div>
+        <div class="chip active" data-cat="toilet"><span class="dot" style="background:var(--dusk)"></span>Restrooms <span class="count" id="count-toilet">0</span></div>
       </div>
 
       <div class="board-head">
-        <h3>Más cercanos</h3>
+        <h3>Nearest places</h3>
         <span id="resultMeta">—</span>
       </div>
       <div class="board" id="board">
-        <div class="empty-state">Cargando…</div>
+        <div class="empty-state">Loading…</div>
       </div>
     </aside>
 
@@ -447,7 +447,7 @@
         <div class="cat-tag" id="detailTag">—</div>
         <h3 id="detailName">—</h3>
         <p id="detailMeta">—</p>
-        <button class="btn-primary" id="directionsBtn">Cómo llegar</button>
+        <button class="btn-primary" id="directionsBtn">Get directions</button>
       </div>
     </div>
   </div>
@@ -500,7 +500,7 @@
   function validateForm(){
     const ok = destinationInput.value.trim().length > 0;
     startBtn.disabled = !ok;
-    hintText.textContent = ok ? "Todo listo — cuando quieras, comienza tu viaje" : "Ingresa tu destino para comenzar";
+    hintText.textContent = ok ? "All set — start your trip whenever you're ready" : "Enter your destination to get started";
   }
   destinationInput.addEventListener('input', validateForm);
 
@@ -526,10 +526,10 @@
   // RESULTS SCREEN LOGIC (map + overpass, same approach as before)
   // =========================================================
   const CATS = {
-    hotel:   { label: "Hospedaje",       icon: "🛏" },
-    transit: { label: "Transporte",      icon: "🚉" },
-    safe:    { label: "Estación segura", icon: "🛡" },
-    toilet:  { label: "Baño público",    icon: "🚻" },
+    hotel:   { label: "Lodging",       icon: "🛏" },
+    transit: { label: "Transportation",icon: "🚉" },
+    safe:    { label: "Safe station",  icon: "🛡" },
+    toilet:  { label: "Public restroom", icon: "🚻" },
   };
   const activeCats = new Set(Object.keys(CATS));
   let userLatLng = null;
@@ -578,11 +578,11 @@
   function escapeHtml(str){ return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
   async function goSearch(query){
-    setStatus("Buscando destino…", true);
+    setStatus("Searching destination…", true);
     try{
       const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`);
       const data = await resp.json();
-      if(data.length === 0){ setStatus("No se encontró ese destino.", false); return; }
+      if(data.length === 0){ setStatus("That destination wasn't found.", false); return; }
       const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
       userLatLng = { lat, lng };
       if(userMarker) map.removeLayer(userMarker);
@@ -591,13 +591,13 @@
       fetchNearby(lat, lng);
     }catch(err){
       console.error(err);
-      setStatus("Error buscando el destino.", false);
+      setStatus("Error searching for destination.", false);
     }
   }
 
   async function fetchNearby(lat, lng){
-    setStatus("Buscando lugares cercanos…", true);
-    document.getElementById('board').innerHTML = `<div class="empty-state">Consultando el mapa…</div>`;
+    setStatus("Searching nearby places…", true);
+    document.getElementById('board').innerHTML = `<div class="empty-state">Checking the map…</div>`;
     const radius = 1500;
     const query = `
       [out:json][timeout:25];
@@ -619,8 +619,8 @@
       processResults(data.elements || [], lat, lng);
     }catch(err){
       console.error(err);
-      setStatus("No se pudo consultar el mapa.", false);
-      document.getElementById('board').innerHTML = `<div class="empty-state">No pudimos cargar lugares cercanos. Verifica tu conexión e intenta de nuevo.</div>`;
+      setStatus("Couldn't load the map right now.", false);
+      document.getElementById('board').innerHTML = `<div class="empty-state">We couldn't load nearby places. Check your connection and try again.</div>`;
     }
   }
 
@@ -640,14 +640,14 @@
     elements.forEach(el => {
       const cat = classify(el.tags);
       if(!cat) return;
-      const name = el.tags.name || (cat==="safe" && el.tags.amenity==="hospital" ? "Hospital" : cat==="safe" ? "Comisaría" : cat==="toilet" ? "Baño público" : cat==="transit" ? "Parada / estación" : "Alojamiento");
+      const name = el.tags.name || (cat==="safe" && el.tags.amenity==="hospital" ? "Hospital" : cat==="safe" ? "Police station" : cat==="toilet" ? "Public restroom" : cat==="transit" ? "Transit stop / station" : "Lodging");
       const dist = haversine(lat, lng, el.lat, el.lon);
       results.push({ id: el.id, cat, name, lat: el.lat, lng: el.lon, dist,
         opening_hours: el.tags.opening_hours || null,
         address: [el.tags["addr:street"], el.tags["addr:housenumber"]].filter(Boolean).join(" ") || null });
     });
     results.sort((a,b)=>a.dist-b.dist);
-    setStatus(`${results.length} lugares encontrados`, true);
+    setStatus(`${results.length} places found`, true);
     renderCounts(); renderBoard(); renderMarkers();
   }
 
@@ -662,7 +662,7 @@
     const visible = results.filter(r => activeCats.has(r.cat));
     document.getElementById('resultMeta').textContent = `${visible.length} de ${results.length}`;
     if(visible.length === 0){
-      board.innerHTML = `<div class="empty-state">No hay resultados para las categorías seleccionadas dentro de 1.5 km.</div>`;
+      board.innerHTML = `<div class="empty-state">No results for the selected categories within 1.5 km.</div>`;
       return;
     }
     board.innerHTML = visible.map(r => {
@@ -672,7 +672,7 @@
         <div class="row-icon">${CATS[r.cat].icon}</div>
         <div class="row-main">
           <div class="row-name">${escapeHtml(r.name)}</div>
-          <div class="row-sub">${CATS[r.cat].label} · ${walkMinutes(r.dist)} min a pie</div>
+          <div class="row-sub">${CATS[r.cat].label} · ${walkMinutes(r.dist)} min walk</div>
         </div>
         <div class="row-dist">${d.val}<small>${d.unit}</small></div>
       </div>`;
@@ -703,9 +703,9 @@
     document.getElementById('detailTag').textContent = CATS[item.cat].label;
     document.getElementById('detailName').textContent = item.name;
     const d = fmtDist(item.dist);
-    const bits = [`${d.val}${d.unit} · ${walkMinutes(item.dist)} min a pie`];
+    const bits = [`${d.val}${d.unit} · ${walkMinutes(item.dist)} min walk`];
     if(item.address) bits.push(item.address);
-    if(item.opening_hours) bits.push(`Horario: ${item.opening_hours}`);
+    if(item.opening_hours) bits.push(`Hours: ${item.opening_hours}`);
     document.getElementById('detailMeta').textContent = bits.join(" · ");
     card.classList.add('show');
     document.getElementById('directionsBtn').onclick = () => {
