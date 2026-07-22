@@ -1,11 +1,23 @@
-// map.js — Leaflet + OpenStreetMap integration
+// map.js — Leaflet + Geoapify integration
 "use strict";
+
+// ⚠️ Para producción: mueve esta key a variables de entorno / backend,
+// no la dejes visible en un archivo JS público.
+const GEOAPIFY_API_KEY = "31c7d4b9ddfc45cc8ed3ab19a74e3391";
 
 const CATS = {
   hotel:   { label: "Lodging",         icon: "🛏" },
   transit: { label: "Transportation",  icon: "🚉" },
   safe:    { label: "Safe station",    icon: "🛡" },
   toilet:  { label: "Public restroom", icon: "🚻" },
+};
+
+// Mapea cada categoría propia a categorías de Geoapify Places API
+const GEOAPIFY_CATEGORIES = {
+  hotel:   "accommodation.hotel,accommodation.hostel,accommodation.guest_house",
+  transit: "public_transport",
+  safe:    "service.police,healthcare.hospital",
+  toilet:  "service.toilet",
 };
 const activeCats = new Set(Object.keys(CATS));
 let userLatLng = null;
@@ -69,15 +81,17 @@ function escapeHtml(str) {
   return str.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-// ---------- Destination search (Nominatim — free public geocoding API) ----------
+// ---------- Destination search (Geoapify Geocoding API) ----------
 async function goSearch(query) {
   setStatus("Searching destination…", true);
   try {
-    const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`);
+    const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(query)}&format=json&limit=1&apiKey=${GEOAPIFY_API_KEY}`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
-    if (data.length === 0) { setStatus("That destination wasn't found.", false); return; }
+    if (!data.results || data.results.length === 0) { setStatus("That destination wasn't found.", false); return; }
 
-    const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
+    const lat = data.results[0].lat, lng = data.results[0].lon;
     userLatLng = { lat, lng };
     if (userMarker) map.removeLayer(userMarker);
     userMarker = L.marker([lat, lng], { icon: pinIcon(null, true) })
@@ -91,32 +105,21 @@ async function goSearch(query) {
   }
 }
 
-// ---------- Nearby places (Overpass — free public OpenStreetMap data API) ----------
+// ---------- Nearby places (Geoapify Places API) ----------
 async function fetchNearby(lat, lng) {
   setStatus("Searching nearby places…", true);
   document.getElementById('board').innerHTML = `<div class="empty-state">Checking the map…</div>`;
   const radius = 1500;
-  const query = `
-    [out:json][timeout:25];
-    (
-      node["tourism"~"hotel|guest_house|hostel"](around:${radius},${lat},${lng});
-      node["public_transport"="station"](around:${radius},${lat},${lng});
-      node["railway"~"station|subway_entrance|tram_stop"](around:${radius},${lat},${lng});
-      node["highway"="bus_stop"](around:${radius},${lat},${lng});
-      node["amenity"="police"](around:${radius},${lat},${lng});
-      node["amenity"="hospital"](around:${radius},${lat},${lng});
-      node["amenity"="toilets"](around:${radius},${lat},${lng});
-    );
-    out body;
-  `;
+  const categories = Object.values(GEOAPIFY_CATEGORIES).join(",");
+  const url = `https://api.geoapify.com/v2/places?categories=${categories}` +
+              `&filter=circle:${lng},${lat},${radius}` +
+              `&bias=proximity:${lng},${lat}` +
+              `&limit=100&apiKey=${GEOAPIFY_API_KEY}`;
   try {
-    const resp = await fetch("https://overpass-api.de/api/interpreter", {
-      method: "POST",
-      body: "data=" + encodeURIComponent(query)
-    });
-    if (!resp.ok) throw new Error("overpass_error");
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
-    processResults(data.elements || [], lat, lng);
+    processResults(data.features || [], lat, lng);
   } catch (err) {
     console.error(err);
     setStatus("Couldn't load the map right now.", false);
@@ -125,33 +128,37 @@ async function fetchNearby(lat, lng) {
   }
 }
 
-function classify(tags) {
-  if (!tags) return null;
-  if (tags.tourism && /hotel|guest_house|hostel/.test(tags.tourism)) return "hotel";
-  if (tags.public_transport === "station") return "transit";
-  if (tags.railway && /station|subway_entrance|tram_stop/.test(tags.railway)) return "transit";
-  if (tags.highway === "bus_stop") return "transit";
-  if (tags.amenity === "police" || tags.amenity === "hospital") return "safe";
-  if (tags.amenity === "toilets") return "toilet";
+function classify(categories) {
+  if (!categories || !categories.length) return null;
+  if (categories.some(c => c.startsWith("accommodation"))) return "hotel";
+  if (categories.some(c => c.startsWith("public_transport"))) return "transit";
+  if (categories.some(c => c === "service.police" || c.startsWith("healthcare.hospital"))) return "safe";
+  if (categories.some(c => c.startsWith("service.toilet"))) return "toilet";
   return null;
 }
 
-function processResults(elements, lat, lng) {
+function processResults(features, lat, lng) {
   results = [];
-  elements.forEach(el => {
-    const cat = classify(el.tags);
+  features.forEach(f => {
+    const p = f.properties;
+    const cats = p.categories || [];
+    const cat = classify(cats);
     if (!cat) return;
-    const name = el.tags.name || (
-      cat === "safe" && el.tags.amenity === "hospital" ? "Hospital" :
+
+    const name = p.name || (
+      cat === "safe" && cats.some(c => c.startsWith("healthcare.hospital")) ? "Hospital" :
       cat === "safe" ? "Police station" :
       cat === "toilet" ? "Public restroom" :
       cat === "transit" ? "Transit stop / station" : "Lodging"
     );
-    const dist = haversine(lat, lng, el.lat, el.lon);
+
+    const flat = p.lat, flng = p.lon;
+    const dist = haversine(lat, lng, flat, flng);
     results.push({
-      id: el.id, cat, name, lat: el.lat, lng: el.lon, dist,
-      opening_hours: el.tags.opening_hours || null,
-      address: [el.tags["addr:street"], el.tags["addr:housenumber"]].filter(Boolean).join(" ") || null
+      id: p.place_id || `${flat},${flng},${name}`,
+      cat, name, lat: flat, lng: flng, dist,
+      opening_hours: p.opening_hours || null,
+      address: p.address_line2 || p.address_line1 || null
     });
   });
   results.sort((a, b) => a.dist - b.dist);
@@ -193,7 +200,7 @@ function renderBoard() {
 
   board.querySelectorAll('.row').forEach(row => {
     row.addEventListener('click', () => {
-      const item = results.find(r => r.id === Number(row.dataset.id));
+      const item = results.find(r => String(r.id) === row.dataset.id);
       if (item) selectItem(item);
     });
   });
@@ -212,7 +219,7 @@ function renderMarkers() {
 
 function selectItem(item) {
   document.querySelectorAll('.row').forEach(row =>
-    row.classList.toggle('selected', Number(row.dataset.id) === item.id));
+    row.classList.toggle('selected', row.dataset.id === String(item.id)));
   map.panTo([item.lat, item.lng]);
 
   const card = document.getElementById('detailCard');
