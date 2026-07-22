@@ -32,8 +32,10 @@ function validateForm() {
 destinationInput.addEventListener('input', validateForm);
 
 document.getElementById('startTripBtn').addEventListener('click', () => {
+  console.log("[DEBUG] Start Trip clicked");
   const dest = destinationInput.value.trim();
-  if (!dest) return;
+  console.log("[DEBUG] destination value:", dest);
+  if (!dest) { console.log("[DEBUG] dest is empty, stopping"); return; }
 
   let subtitle = dest;
   if (departureInput.value && arrivalInput.value) {
@@ -44,6 +46,8 @@ document.getElementById('startTripBtn').addEventListener('click', () => {
   document.getElementById('resultsSubtitle').textContent = subtitle;
 
   showScreen('results');   // from navigation.js
+  console.log("[DEBUG] calling initMapOnce()");
   initMapOnce();           // from map.js
+  console.log("[DEBUG] calling goSearch()");
   goSearch(dest);          // from map.js
 });
