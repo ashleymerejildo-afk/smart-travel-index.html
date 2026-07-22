@@ -83,37 +83,30 @@ function escapeHtml(str) {
 
 // ---------- Destination search (Geoapify Geocoding API) ----------
 async function goSearch(query) {
-  console.log("[DEBUG] goSearch called with query:", query);
   setStatus("Searching destination…", true);
   try {
-    const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(query)}&format=json&limit=1&apiKey=${GEOAPIFY_API_KEY}`;
-    console.log("[DEBUG] Fetching geocode URL:", url);
+    const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(query)}&type=city&format=json&limit=1&apiKey=${GEOAPIFY_API_KEY}`;
     const resp = await fetch(url);
-    console.log("[DEBUG] Geocode response status:", resp.status);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
-    console.log("[DEBUG] Geocode data:", data);
     if (!data.results || data.results.length === 0) { setStatus("That destination wasn't found.", false); return; }
 
     const lat = data.results[0].lat, lng = data.results[0].lon;
-    console.log("[DEBUG] Coordinates found:", lat, lng);
     userLatLng = { lat, lng };
     if (userMarker) map.removeLayer(userMarker);
     userMarker = L.marker([lat, lng], { icon: pinIcon(null, true) })
       .addTo(map)
       .bindPopup(query);
     map.setView([lat, lng], 15);
-    console.log("[DEBUG] Calling fetchNearby...");
     fetchNearby(lat, lng);
   } catch (err) {
-    console.error("[DEBUG] goSearch ERROR:", err);
+    console.error(err);
     setStatus("Error searching for destination.", false);
   }
 }
 
 // ---------- Nearby places (Geoapify Places API) ----------
 async function fetchNearby(lat, lng) {
-  console.log("[DEBUG] fetchNearby called with:", lat, lng);
   setStatus("Searching nearby places…", true);
   document.getElementById('board').innerHTML = `<div class="empty-state">Checking the map…</div>`;
   const radius = 1500;
@@ -122,20 +115,13 @@ async function fetchNearby(lat, lng) {
               `&filter=circle:${lng},${lat},${radius}` +
               `&bias=proximity:${lng},${lat}` +
               `&limit=100&apiKey=${GEOAPIFY_API_KEY}`;
-  console.log("[DEBUG] Fetching places URL:", url);
   try {
     const resp = await fetch(url);
-    console.log("[DEBUG] Places response status:", resp.status);
-    if (!resp.ok) {
-      const errBody = await resp.text();
-      console.error("[DEBUG] Places error body:", errBody);
-      throw new Error(`HTTP ${resp.status}`);
-    }
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
-    console.log("[DEBUG] Places data, feature count:", (data.features || []).length);
     processResults(data.features || [], lat, lng);
   } catch (err) {
-    console.error("[DEBUG] fetchNearby ERROR:", err);
+    console.error(err);
     setStatus("Couldn't load the map right now.", false);
     document.getElementById('board').innerHTML =
       `<div class="empty-state">We couldn't load nearby places. Check your connection and try again.</div>`;
