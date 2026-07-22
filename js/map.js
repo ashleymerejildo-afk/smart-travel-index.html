@@ -17,7 +17,7 @@ const GEOAPIFY_CATEGORIES = {
   hotel:   "accommodation.hotel,accommodation.hostel,accommodation.guest_house",
   transit: "public_transport",
   safe:    "service.police,healthcare.hospital",
-  toilet:  "service.toilet",
+  toilet:  "amenity.toilet",
 };
 const activeCats = new Set(Object.keys(CATS));
 let userLatLng = null;
@@ -133,7 +133,7 @@ function classify(categories) {
   if (categories.some(c => c.startsWith("accommodation"))) return "hotel";
   if (categories.some(c => c.startsWith("public_transport"))) return "transit";
   if (categories.some(c => c === "service.police" || c.startsWith("healthcare.hospital"))) return "safe";
-  if (categories.some(c => c.startsWith("service.toilet"))) return "toilet";
+  if (categories.some(c => c.startsWith("amenity.toilet"))) return "toilet";
   return null;
 }
 
