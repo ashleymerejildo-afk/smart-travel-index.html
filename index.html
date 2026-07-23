@@ -23,15 +23,22 @@
   <svg class="badge-svg" viewBox="0 0 240 240" fill="none">
     <defs>
       <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#2E7FC1"/>
+        <stop offset="0" stop-color="#FFD873"/>
         <stop offset="1" stop-color="#8FD1F0"/>
       </linearGradient>
+      <linearGradient id="trailGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#8FD1F0" stop-opacity="0.15"/>
+        <stop offset="1" stop-color="#EAF7FF" stop-opacity="0.95"/>
+      </linearGradient>
     </defs>
-    <circle cx="120" cy="120" r="100" fill="#FFFFFF" fill-opacity="0.08"/>
+    <circle cx="120" cy="120" r="100" fill="#FFFFFF" fill-opacity="0.1"/>
     <circle id="badgeRing" cx="120" cy="120" r="100" stroke="url(#ringGrad)" stroke-width="6" fill="none"/>
 
     <circle id="eyeL" cx="92" cy="92" r="7" fill="#1F5FA6"/>
     <circle id="eyeR" cx="132" cy="86" r="7" fill="#1F5FA6"/>
+
+    <!-- blue trail left behind the plane as it draws the smile -->
+    <path id="planeTrail" d="M68,112 Q118,176 172,112" stroke="url(#trailGrad)" stroke-width="4" stroke-linecap="round" fill="none"/>
 
     <path id="smileArc" d="M68,112 Q118,176 172,112" stroke="#FFC94A" stroke-width="16" stroke-linecap="round" fill="none"/>
 
@@ -55,88 +62,124 @@
 ============================================================ -->
 <div class="screen" id="setup">
   <div class="banner setup-banner">
-    <svg viewBox="0 0 480 210" preserveAspectRatio="xMidYMax slice">
-      <!-- sun glow, top corner -->
-      <circle cx="430" cy="18" r="34" fill="#FFE9A8" opacity="0.85"/>
-      <circle cx="430" cy="18" r="20" fill="#FFD873"/>
+    <svg viewBox="0 0 480 236" preserveAspectRatio="xMidYMax slice">
+      <defs>
+        <radialGradient id="sunGradSetup" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#FFF7DE"/>
+          <stop offset="45%" stop-color="#FFD873"/>
+          <stop offset="100%" stop-color="#FFD873" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="worldShade" cx="38%" cy="32%" r="75%">
+          <stop offset="0%" stop-color="#6FBEEA"/>
+          <stop offset="60%" stop-color="var(--world-sea)"/>
+          <stop offset="100%" stop-color="#2E6FA0"/>
+        </radialGradient>
+      </defs>
 
-      <!-- birds -->
-      <path d="M130,22 q5,-6 10,0 q5,-6 10,0" stroke="rgba(255,255,255,0.7)" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <path d="M175,34 q4,-5 8,0 q4,-5 8,0" stroke="rgba(255,255,255,0.6)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- distant sun, top corner -->
+      <circle cx="424" cy="30" r="46" fill="url(#sunGradSetup)"/>
+      <circle cx="424" cy="30" r="18" fill="#FFEFB0"/>
 
-      <!-- hot air balloons -->
-      <g transform="translate(24,30)">
-        <path d="M12 0 C22 0 24 18 12 22 C0 18 2 0 12 0 Z" fill="#E8604C"/>
-        <path d="M12 0 C18 0 19 12 12 15 C5 12 6 0 12 0 Z" fill="#F2A23C" opacity="0.85"/>
-        <line x1="6" y1="21" x2="4" y2="30" stroke="#5C4529" stroke-width="1.2"/>
-        <line x1="18" y1="21" x2="20" y2="30" stroke="#5C4529" stroke-width="1.2"/>
-        <rect x="4" y="30" width="16" height="7" rx="1.5" fill="#8A6A45"/>
+      <!-- soft clouds -->
+      <g fill="#FFFFFF" opacity="0.85">
+        <ellipse cx="54" cy="26" rx="26" ry="10"/>
+        <ellipse cx="74" cy="20" rx="18" ry="9"/>
+        <ellipse cx="34" cy="20" rx="15" ry="8"/>
       </g>
-      <g transform="translate(410,64) scale(0.7)">
-        <path d="M12 0 C22 0 24 18 12 22 C0 18 2 0 12 0 Z" fill="#4FC3B0"/>
-        <path d="M12 0 C18 0 19 12 12 15 C5 12 6 0 12 0 Z" fill="#E0A83F" opacity="0.85"/>
-        <line x1="6" y1="21" x2="4" y2="30" stroke="#5C4529" stroke-width="1.2"/>
-        <line x1="18" y1="21" x2="20" y2="30" stroke="#5C4529" stroke-width="1.2"/>
-        <rect x="4" y="30" width="16" height="7" rx="1.5" fill="#8A6A45"/>
+      <g fill="#FFFFFF" opacity="0.7">
+        <ellipse cx="300" cy="16" rx="22" ry="8"/>
+        <ellipse cx="316" cy="22" rx="15" ry="7"/>
+      </g>
+      <g fill="#FFFFFF" opacity="0.6">
+        <ellipse cx="150" cy="40" rx="20" ry="7"/>
+        <ellipse cx="164" cy="35" rx="13" ry="6"/>
       </g>
 
-      <!-- sky planes with trails -->
-      <path class="plane-trail" d="M20,40 L90,28" stroke="rgba(255,255,255,0.55)" stroke-width="2" fill="none"/>
-      <g transform="translate(96,26) rotate(-8) scale(0.55)">
+      <!-- tiny birds -->
+      <path d="M200,18 q5,-6 10,0 q5,-6 10,0" stroke="rgba(255,255,255,0.75)" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+      <!-- sky planes with dashed trails -->
+      <path class="plane-trail" d="M12,52 L92,30" stroke="rgba(255,255,255,0.6)" stroke-width="2" fill="none"/>
+      <g transform="translate(98,28) rotate(-14) scale(0.55)">
         <path d="M2 8 L22 8 L32 3 L34 4.5 L27 8.6 L34 12.7 L32 14.2 L22 9.5 L2 9.5 Z" fill="#FFFFFF"/>
       </g>
-      <path class="plane-trail" d="M330,55 L390,44" stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none"/>
-      <g transform="translate(396,42) rotate(-8) scale(0.4)">
+      <path class="plane-trail" d="M356,64 L420,46" stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none"/>
+      <g transform="translate(426,44) rotate(-14) scale(0.42)">
         <path d="M2 8 L22 8 L32 3 L34 4.5 L27 8.6 L34 12.7 L32 14.2 L22 9.5 L2 9.5 Z" fill="#FFFFFF"/>
       </g>
 
-      <!-- Earth globe -->
-      <circle cx="240" cy="235" r="120" fill="#5AA9DC" stroke="#EFF7FB" stroke-width="3"/>
-      <path d="M150,170 q20,-14 40,-4 q18,8 8,22 q-14,10 -34,2 q-18,-8 -14,-20 Z" fill="#7BBE7E" opacity="0.9"/>
-      <path d="M260,150 q26,-8 42,6 q10,10 -6,18 q-22,8 -38,-4 q-12,-10 2,-20 Z" fill="#7BBE7E" opacity="0.9"/>
-      <path d="M210,190 q30,-6 46,10 q6,10 -10,14 q-26,4 -40,-8 q-8,-8 4,-16 Z" fill="#6BAE72" opacity="0.85"/>
-
-      <!-- Eiffel Tower -->
-      <g transform="translate(96,88)">
-        <path d="M14 0 L20 46 L26 92 L34 92 L30 46 L28 0 Z" fill="#3A4750"/>
-        <path d="M0 92 L14 46 L20 0 L18 46 L8 92 Z" fill="#3A4750"/>
-        <rect x="6" y="66" width="22" height="4" fill="#3A4750"/>
-        <rect x="2" y="86" width="30" height="5" fill="#3A4750"/>
+      <!-- 7 iconic monuments along the horizon -->
+      <!-- Eiffel Tower (France) -->
+      <g transform="translate(12,0)">
+        <path d="M28 55 L34 90 L40 120 L46 120 L40 90 L32 55 Z" fill="var(--monument-ink)"/>
+        <path d="M18 120 L26 90 L32 55 L30 90 L22 120 Z" fill="var(--monument-ink)"/>
+        <rect x="20" y="98" width="20" height="4" fill="var(--monument-ink)"/>
+        <rect x="14" y="116" width="32" height="5" fill="var(--monument-ink)"/>
       </g>
 
-      <!-- Statue of Liberty -->
-      <g transform="translate(150,72)">
-        <rect x="10" y="46" width="16" height="30" fill="#6FA391"/>
-        <path d="M8 46 Q18 20 28 46 Z" fill="#8CC0AC"/>
-        <rect x="16" y="18" width="4" height="22" fill="#8CC0AC"/>
-        <path d="M14 18 L22 18 L18 8 Z" fill="#E0A83F"/>
-        <path d="M6 12 L10 4 L12 4 L10 12 Z" fill="#8CC0AC" transform="translate(4,6) rotate(20)"/>
+      <!-- Statue of Liberty (USA) -->
+      <g transform="translate(76,0)">
+        <rect x="8" y="96" width="18" height="24" fill="var(--monument-ink)"/>
+        <path d="M6 96 Q17 68 28 96 Z" fill="var(--monument-ink)"/>
+        <rect x="14" y="70" width="5" height="27" fill="var(--monument-ink)"/>
+        <path d="M12 70 L20 70 L16 58 Z" fill="var(--gold)"/>
+        <path d="M2 64 L8 54 L11 55 L7 65 Z" fill="var(--monument-ink)"/>
       </g>
 
-      <!-- Pyramids -->
-      <g transform="translate(200,96)">
-        <path d="M0 60 L24 8 L48 60 Z" fill="#D9A85C"/>
-        <path d="M30 60 L52 22 L74 60 Z" fill="#C99248"/>
-        <path d="M56 60 L72 34 L88 60 Z" fill="#B9813A"/>
+      <!-- Pyramids of Giza (Egypt) -->
+      <g transform="translate(142,0)">
+        <path d="M0 120 L20 78 L40 120 Z" fill="#D9A85C"/>
+        <path d="M22 120 L40 90 L58 120 Z" fill="#C99248"/>
+        <path d="M44 120 L56 98 L68 120 Z" fill="#B9813A"/>
       </g>
 
-      <!-- Big Ben -->
-      <g transform="translate(290,60)">
-        <rect x="8" y="30" width="20" height="62" fill="#8A6A45"/>
-        <rect x="4" y="20" width="28" height="12" fill="#755A3A"/>
-        <path d="M4 20 L18 2 L32 20 Z" fill="#5C4529"/>
-        <circle cx="18" cy="44" r="8" fill="#F5E6C8" stroke="#5C4529" stroke-width="1.5"/>
+      <!-- Taj Mahal (India) -->
+      <g transform="translate(212,0)">
+        <rect x="10" y="95" width="34" height="25" fill="#EFE7DD"/>
+        <path d="M10 95 Q27 60 44 95 Z" fill="#F4EEE3"/>
+        <circle cx="27" cy="60" r="3" fill="var(--gold)"/>
+        <rect x="1" y="80" width="6" height="40" fill="#EFE7DD"/>
+        <rect x="47" y="80" width="6" height="40" fill="#EFE7DD"/>
+        <path d="M1 80 Q4 70 7 80 Z" fill="#EFE7DD"/>
+        <path d="M47 80 Q50 70 53 80 Z" fill="#EFE7DD"/>
       </g>
 
-      <!-- Leaning Tower of Pisa -->
-      <g transform="translate(340,78) rotate(6)">
-        <rect x="0" y="0" width="22" height="70" rx="3" fill="#EDE6D6"/>
-        <rect x="0" y="10" width="22" height="4" fill="#CDBFA0"/>
-        <rect x="0" y="26" width="22" height="4" fill="#CDBFA0"/>
-        <rect x="0" y="42" width="22" height="4" fill="#CDBFA0"/>
-        <rect x="0" y="58" width="22" height="4" fill="#CDBFA0"/>
-        <ellipse cx="11" cy="0" rx="11" ry="4" fill="#F5EFE1"/>
+      <!-- Sydney Opera House (Australia) -->
+      <g transform="translate(278,0)">
+        <rect x="-4" y="114" width="66" height="6" fill="#D8CFC0"/>
+        <path d="M0 114 Q10 82 24 114 Z" fill="#F4EFE6"/>
+        <path d="M16 114 Q28 76 42 114 Z" fill="#EAE3D6"/>
+        <path d="M34 114 Q46 86 58 114 Z" fill="#F4EFE6"/>
       </g>
+
+      <!-- Roman Colosseum (Italy) -->
+      <g transform="translate(344,0)">
+        <path d="M0 120 Q0 80 30 80 Q60 80 60 120 Z" fill="var(--monument-ink)"/>
+        <rect x="4" y="88" width="6" height="10" fill="var(--sky-mid)"/>
+        <rect x="16" y="88" width="6" height="10" fill="var(--sky-mid)"/>
+        <rect x="28" y="88" width="6" height="10" fill="var(--sky-mid)"/>
+        <rect x="40" y="88" width="6" height="10" fill="var(--sky-mid)"/>
+        <rect x="52" y="88" width="6" height="10" fill="var(--sky-mid)"/>
+      </g>
+
+      <!-- Blue Mosque (Turkey) -->
+      <g transform="translate(404,0)">
+        <path d="M8 120 Q8 96 26 96 Q44 96 44 120 Z" fill="var(--dusk)"/>
+        <circle cx="26" cy="89" r="10" fill="var(--dusk)"/>
+        <rect x="0" y="72" width="5" height="48" fill="var(--dusk)"/>
+        <rect x="47" y="72" width="5" height="48" fill="var(--dusk)"/>
+        <path d="M0 72 Q2.5 64 5 72 Z" fill="var(--dusk)"/>
+        <path d="M47 72 Q49.5 64 52 72 Z" fill="var(--dusk)"/>
+        <path d="M24 80 L26 73 L28 80 Z" fill="var(--gold)"/>
+      </g>
+
+      <!-- flat-design world, sitting just below the horizon -->
+      <circle cx="240" cy="300" r="185" fill="url(#worldShade)" stroke="#EFF7FB" stroke-width="3"/>
+      <path d="M130,165 q22,-16 46,-4 q20,9 8,24 q-16,11 -38,2 q-20,-9 -16,-22 Z" fill="var(--world-land)" opacity="0.92"/>
+      <path d="M258,142 q28,-9 46,7 q11,11 -7,20 q-24,9 -42,-4 q-13,-11 3,-23 Z" fill="var(--world-land)" opacity="0.92"/>
+      <path d="M198,188 q32,-7 50,10 q7,11 -10,15 q-28,5 -44,-8 q-9,-9 4,-17 Z" fill="var(--world-land)" opacity="0.85"/>
+      <path d="M60,190 Q240,150 420,190" stroke="rgba(255,255,255,0.28)" stroke-width="1.5" fill="none"/>
+      <path d="M90,225 Q240,195 390,225" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" fill="none"/>
     </svg>
     <h1 class="banner-title">Smart Travel</h1>
   </div>
