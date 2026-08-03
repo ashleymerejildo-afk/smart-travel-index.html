@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Travel — Planifica tu viaje</title>
+<title>Smart Travel — Plan your trip</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -12,46 +12,59 @@
 <body>
 
 <!-- ============================================================
-     SPLASH SCREEN
+     SPLASH SCREEN — sun badge with a plane trail forming a smile
 ============================================================ -->
 <div class="screen active" id="splash">
-  <div class="illo-wrap">
-    <svg width="180" height="180" viewBox="0 0 180 180" fill="none">
-      <g class="sunburst">
-        <circle cx="90" cy="90" r="34" fill="#E0A83F"/>
-        <g stroke="#C9603E" stroke-width="4" stroke-linecap="round">
-          <line x1="90" y1="20" x2="90" y2="38"/>
-          <line x1="90" y1="142" x2="90" y2="160"/>
-          <line x1="20" y1="90" x2="38" y2="90"/>
-          <line x1="142" y1="90" x2="160" y2="90"/>
-          <line x1="38" y1="38" x2="50" y2="50"/>
-          <line x1="130" y1="130" x2="142" y2="142"/>
-          <line x1="142" y1="38" x2="130" y2="50"/>
-          <line x1="50" y1="130" x2="38" y2="142"/>
-        </g>
-      </g>
-      <path d="M90 90 q14 -14 0 -28 q-14 14 0 28" stroke="#74906A" stroke-width="0" fill="#74906A" opacity="0.9"/>
-      <path d="M40 150 q20 -30 0 -55" stroke="#74906A" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <path d="M40 150 q-14 -10 -20 -28" stroke="#74906A" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <path d="M40 150 q22 -6 26 -24" stroke="#74906A" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <circle cx="145" cy="140" r="7" fill="#C9603E"/>
-      <circle cx="152" cy="152" r="5" fill="#E0A83F"/>
-      <circle cx="132" cy="152" r="5" fill="#74906A"/>
-    </svg>
+  <div class="cloud-layer">
+    <div class="cloud c1"></div>
+    <div class="cloud c2"></div>
+    <div class="cloud c3"></div>
+    <div class="cloud c4"></div>
   </div>
-  <h1>Smart Travel</h1>
-  <p>Planifica tu viaje</p>
+  <div class="sun-glow"></div>
+
+  <svg class="badge-svg" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- outer ring -->
+    <circle id="badgeRing" cx="150" cy="150" r="100" stroke="#FFFFFF" stroke-width="6" fill="none" stroke-linecap="round"/>
+
+    <!-- eyes -->
+    <circle id="eyeL" cx="118" cy="128" r="8" fill="#FFFFFF"/>
+    <circle id="eyeR" cx="182" cy="128" r="8" fill="#FFFFFF"/>
+
+    <!-- simple smile -->
+    <path id="smileArc" d="M112 168 Q150 200 188 168" stroke="#FFFFFF" stroke-width="7" fill="none" stroke-linecap="round"/>
+
+    <!-- plane contrail, curving into the same smile shape -->
+    <path id="planeTrail" d="M58 190 Q150 240 242 190" stroke="#CDEBFF" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+    <!-- plane at the end of the trail -->
+    <g id="planeGroup" transform="translate(222,178) rotate(18)">
+      <g class="jet-body">
+        <ellipse cx="0" cy="0" rx="22" ry="6" fill="#FFFFFF"/>
+        <path d="M-4 -2 L-16 -14 L-10 -14 L2 -3 Z" fill="#FFFFFF"/>
+        <path d="M-4 2 L-16 14 L-10 14 L2 3 Z" fill="#FFFFFF"/>
+        <path d="M14 -1 L22 -6 L22 -3 L16 0 Z" fill="#E8703F"/>
+        <path d="M14 1 L22 6 L22 3 L16 0 Z" fill="#E8703F"/>
+        <circle cx="18" cy="0" r="2" fill="#33566E"/>
+      </g>
+    </g>
+  </svg>
+
+  <div class="splash-logo">
+    <h1>Smart Travel</h1>
+    <p>Plan your trip</p>
+  </div>
 </div>
 
 <!-- ============================================================
-     SETUP SCREEN — Destination / Arrival / Departure / Transport
+     SETUP SCREEN — Destination / Dates / Transport
 ============================================================ -->
 <div class="screen" id="setup">
   <div class="banner setup-banner">
     <svg width="100%" height="180" viewBox="0 0 480 180" preserveAspectRatio="xMidYMid slice">
       <g class="sunburst" style="transform-origin:80px 70px;">
-        <circle cx="80" cy="70" r="30" fill="#E0A83F"/>
-        <g stroke="#C9603E" stroke-width="3.5" stroke-linecap="round">
+        <circle cx="80" cy="70" r="30" fill="#F0A83A"/>
+        <g stroke="#FFF1C4" stroke-width="3.5" stroke-linecap="round" opacity="0.85">
           <line x1="80" y1="14" x2="80" y2="28"/>
           <line x1="80" y1="112" x2="80" y2="126"/>
           <line x1="24" y1="70" x2="38" y2="70"/>
@@ -62,15 +75,16 @@
           <line x1="50" y1="100" x2="40" y2="110"/>
         </g>
       </g>
-      <path d="M400 160 q18 -34 0 -62" stroke="#74906A" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <path d="M400 160 q-16 -12 -22 -32" stroke="#74906A" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <path d="M400 160 q24 -8 28 -28" stroke="#74906A" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <circle cx="330" cy="60" r="9" fill="#C9603E"/>
-      <circle cx="340" cy="45" r="6" fill="#E0A83F"/>
-      <circle cx="318" cy="46" r="6" fill="#74906A"/>
-      <path d="M200 150 q30 -20 -8 -46 q30 20 8 46" fill="#E7D5BC" opacity="0.7"/>
-      <circle cx="440" cy="130" r="5" fill="#E0A83F" opacity="0.8"/>
-      <circle cx="30" cy="140" r="4" fill="#74906A" opacity="0.7"/>
+      <path class="plane-trail" d="M400 160 Q430 120 400 90" stroke="#CDEBFF" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <g transform="translate(400,90) rotate(-70)">
+        <ellipse cx="0" cy="0" rx="14" ry="4" fill="#FFFFFF"/>
+        <path d="M-2 -1 L-9 -8 L-6 -8 L1 -2 Z" fill="#FFFFFF"/>
+        <path d="M-2 1 L-9 8 L-6 8 L1 2 Z" fill="#FFFFFF"/>
+      </g>
+      <path d="M200 150 q30 -20 -8 -46 q30 20 8 46" fill="#FFFFFF" opacity="0.55"/>
+      <path d="M60 60 q22 -14 -6 -34 q22 14 6 34" fill="#FFFFFF" opacity="0.4"/>
+      <circle cx="440" cy="130" r="5" fill="#FFE8B4" opacity="0.8"/>
+      <circle cx="30" cy="140" r="4" fill="#FFE8B4" opacity="0.7"/>
     </svg>
   </div>
 
@@ -79,36 +93,36 @@
       <h1>Smart Travel</h1>
     </div>
 
-    <label class="field-label first">Destino</label>
-    <input class="destination-input" id="destinationInput" type="text" placeholder="¿A dónde vas? Ej. Madrid, España" />
+    <label class="field-label first">Destination</label>
+    <input class="destination-input" id="destinationInput" type="text" placeholder="Where are you going? e.g. Madrid, Spain" />
 
-    <label class="field-label">Ruta</label>
+    <label class="field-label">Dates</label>
     <div class="route-row">
       <div class="route-field departure">
-        <label>Salida</label>
-        <input id="departureInput" type="text" placeholder="Ciudad de origen" />
+        <label>Departure</label>
+        <input id="departureInput" type="date" />
       </div>
-      <button class="route-swap" id="swapBtn" title="Intercambiar" type="button">⇄</button>
+      <button class="route-swap" id="swapBtn" title="Swap" type="button">⇄</button>
       <div class="route-field">
-        <label>Llegada</label>
-        <input id="arrivalInput" type="text" placeholder="Ciudad de llegada" />
+        <label>Return</label>
+        <input id="arrivalInput" type="date" />
       </div>
     </div>
 
-    <label class="field-label">Transporte</label>
+    <label class="field-label">Transportation</label>
     <div class="transport-list" id="transportList">
-      <div class="transport-opt" data-t="bus"><span class="icon">🚌</span><span class="label">Autobús</span></div>
-      <div class="transport-opt" data-t="train"><span class="icon">🚆</span><span class="label">Tren</span></div>
+      <div class="transport-opt" data-t="bus"><span class="icon">🚌</span><span class="label">Bus</span></div>
+      <div class="transport-opt" data-t="train"><span class="icon">🚆</span><span class="label">Train</span></div>
       <div class="transport-opt" data-t="metro"><span class="icon">🚇</span><span class="label">Metro</span></div>
-      <div class="transport-opt" data-t="plane"><span class="icon">✈️</span><span class="label">Avión</span></div>
+      <div class="transport-opt" data-t="plane"><span class="icon">✈️</span><span class="label">Plane</span></div>
       <div class="transport-opt" data-t="taxi"><span class="icon">🚕</span><span class="label">Taxi / Uber</span></div>
-      <div class="transport-opt" data-t="walk"><span class="icon">🚶</span><span class="label">A pie</span></div>
+      <div class="transport-opt" data-t="walk"><span class="icon">🚶</span><span class="label">Walking</span></div>
     </div>
   </div>
 
   <div class="cta-bar">
     <button class="start-btn" id="startTripBtn" disabled>Start Trip</button>
-    <div class="hint-text">Ingresa tu destino para comenzar</div>
+    <div class="hint-text">Enter your destination to get started</div>
   </div>
 </div>
 
@@ -121,29 +135,29 @@
       <div class="results-top">
         <button class="back-btn" id="backBtn">←</button>
         <div>
-          <h2 id="resultsTitle">Tu viaje</h2>
+          <h2 id="resultsTitle">Your trip</h2>
           <p id="resultsSubtitle">—</p>
         </div>
       </div>
 
       <div class="status-line">
         <span class="pulse-dot off" id="statusDot"></span>
-        <span id="statusText">Preparando resultados…</span>
+        <span id="statusText">Preparing results…</span>
       </div>
 
       <div class="chips" id="chips">
-        <div class="chip active" data-cat="hotel"><span class="dot" style="background:var(--gold)"></span>Hospedaje <span class="count" id="count-hotel">0</span></div>
-        <div class="chip active" data-cat="transit"><span class="dot" style="background:var(--sage)"></span>Transporte <span class="count" id="count-transit">0</span></div>
-        <div class="chip active" data-cat="safe"><span class="dot" style="background:var(--terracotta)"></span>Estaciones seguras <span class="count" id="count-safe">0</span></div>
-        <div class="chip active" data-cat="toilet"><span class="dot" style="background:var(--dusk)"></span>Baños <span class="count" id="count-toilet">0</span></div>
+        <div class="chip active" data-cat="hotel"><span class="dot" style="background:var(--gold)"></span>Lodging <span class="count" id="count-hotel">0</span></div>
+        <div class="chip active" data-cat="transit"><span class="dot" style="background:var(--sage)"></span>Transportation <span class="count" id="count-transit">0</span></div>
+        <div class="chip active" data-cat="safe"><span class="dot" style="background:var(--terracotta)"></span>Safe stations <span class="count" id="count-safe">0</span></div>
+        <div class="chip active" data-cat="toilet"><span class="dot" style="background:var(--dusk)"></span>Restrooms <span class="count" id="count-toilet">0</span></div>
       </div>
 
       <div class="board-head">
-        <h3>Más cercanos</h3>
+        <h3>Nearby</h3>
         <span id="resultMeta">—</span>
       </div>
       <div class="board" id="board">
-        <div class="empty-state">Cargando…</div>
+        <div class="empty-state">Loading…</div>
       </div>
     </aside>
 
@@ -154,7 +168,7 @@
         <div class="cat-tag" id="detailTag">—</div>
         <h3 id="detailName">—</h3>
         <p id="detailMeta">—</p>
-        <button class="btn-primary" id="directionsBtn">Cómo llegar</button>
+        <button class="btn-primary" id="directionsBtn">Get directions</button>
       </div>
     </div>
   </div>
