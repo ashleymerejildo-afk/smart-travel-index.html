@@ -350,5 +350,132 @@ button{ font-family:'Inter', sans-serif; }
 .chip[data-cat="transit"].active{ background: rgba(53,163,138,0.16); border-color:var(--sage); }
 .chip[data-cat="safe"].active{ background: rgba(232,112,63,0.16); border-color:var(--terracotta); }
 .chip[data-cat="toilet"].active{ background: rgba(51,86,110,0.24); border-color:var(--dusk); }
-.chip .count{ font-family:'IBM Plex Mono',
-head -3 css/style.css
+.chip .count{ font-family:'IBM Plex Mono', monospace; color:var(--map-text-dim); font-size:11px; }
+
+.board-head{ display:flex; justify-content:space-between; align-items:baseline; padding:15px 20px 8px 20px; }
+.board-head h3{ font-family:'Fraunces', serif; font-size:13px; letter-spacing:0.045em; text-transform:uppercase; color:var(--map-text-dim); margin:0; font-weight:600; }
+.board-head span{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--map-text-dim); }
+.board{ flex:1; overflow-y:auto; padding:0 10px 16px 10px; }
+.board::-webkit-scrollbar{ width:6px; }
+.board::-webkit-scrollbar-thumb{ background:var(--map-line); border-radius:3px; }
+
+.row{ display:grid; grid-template-columns: 4px 34px 1fr auto; align-items:center; gap:12px;
+  padding:12px 10px; border-bottom:1px dashed var(--map-line); cursor:pointer;
+  border-radius:12px; transition: background .16s var(--ease-soft), transform .12s var(--ease-soft);
+}
+.row:hover{ background:var(--map-panel-2); transform: translateX(2px); }
+.row.selected{ background:var(--map-panel-2); border-bottom-color:transparent; box-shadow: inset 0 0 0 1px var(--map-line); }
+
+.row-bar{ align-self:stretch; border-radius:4px; }
+.row-bar.hotel{ background: linear-gradient(180deg, var(--gold) 0%, var(--gold-deep) 100%); }
+.row-bar.transit{ background: linear-gradient(180deg, var(--sage) 0%, #278571 100%); }
+.row-bar.safe{ background: linear-gradient(180deg, var(--terracotta) 0%, var(--terracotta-deep) 100%); }
+.row-bar.toilet{ background: linear-gradient(180deg, var(--dusk) 0%, #24404F 100%); }
+
+.row-icon{
+  width:34px; height:34px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; background:var(--map-panel-2);
+  border:1px solid var(--map-line);
+}
+.row-main{ min-width:0; }
+.row-name{ font-size:13.5px; font-weight:600; color:var(--map-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.row-sub{ font-size:11.5px; color:var(--map-text-dim); margin-top:2px; }
+.row-dist{ font-family:'IBM Plex Mono', monospace; text-align:right; font-size:13px; font-weight:600; color:var(--map-text); white-space:nowrap; }
+.row-dist small{ display:block; font-size:9.5px; font-weight:400; color:var(--map-text-dim); }
+
+.empty-state{
+  padding:44px 22px; text-align:center; color:var(--map-text-dim);
+  font-size:13px; line-height:1.65;
+}
+
+/* ---- Map surface + Leaflet theming ---- */
+#resultsMap{ height:100%; width:100%; background:var(--map-ink); }
+.leaflet-popup-content-wrapper{
+  background:var(--map-panel); color:var(--map-text);
+  border-radius:12px; box-shadow: var(--shadow-elevated);
+}
+.leaflet-popup-tip{ background:var(--map-panel); }
+.leaflet-control-zoom a{
+  background:var(--map-panel-2) !important; color:var(--map-text) !important;
+  border-color:var(--map-line) !important;
+}
+.leaflet-control-attribution{
+  background:rgba(15,33,43,0.75) !important; color:var(--map-text-dim) !important;
+}
+.leaflet-control-attribution a{ color:var(--map-text-dim) !important; }
+
+/* ---- Detail card (selected place) ---- */
+.detail-card{
+  position:absolute; right:20px; bottom:20px; z-index:1000;
+  width:290px; max-width:calc(100vw - 40px);
+  background:var(--map-panel); border:1px solid var(--map-line); border-radius:var(--radius);
+  padding:20px; box-shadow: var(--shadow-elevated);
+  display:none;
+}
+.detail-card.show{
+  display:block;
+  animation: cardIn .28s var(--ease-out) both;
+}
+@keyframes cardIn{ from{ opacity:0; transform: translateY(10px); } to{ opacity:1; transform:translateY(0); } }
+.detail-card .cat-tag{
+  display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700;
+  text-transform:uppercase; letter-spacing:0.07em; color:var(--map-text-dim); margin-bottom:9px;
+}
+.detail-card h3{ font-size:16.5px; margin:0 0 7px 0; color:var(--map-text); }
+.detail-card p{ font-size:12.5px; color:var(--map-text-dim); margin:0 0 16px 0; line-height:1.55; }
+.detail-card .btn-primary{
+  width:100%; border:none; border-radius:12px;
+  background: linear-gradient(160deg, var(--gold) 0%, var(--gold-deep) 100%);
+  color:#2B2621; font-weight:700; padding:12px 0; cursor:pointer; font-size:13.5px;
+  box-shadow: 0 10px 22px rgba(217,143,34,0.3);
+  transition: transform .14s var(--ease-soft), box-shadow .14s var(--ease-soft);
+}
+.detail-card .btn-primary:hover{ transform: translateY(-1px); box-shadow: 0 14px 28px rgba(217,143,34,0.38); }
+.detail-card .close{
+  position:absolute; top:14px; right:16px; cursor:pointer; color:var(--map-text-dim);
+  font-size:16px; background:none; border:none; transition: color .15s var(--ease-soft);
+}
+.detail-card .close:hover{ color:var(--map-text); }
+
+/* ---- Map pins ---- */
+.leaflet-div-icon{ background:none; border:none; }
+.pin{
+  width:26px; height:26px; border-radius:50% 50% 50% 0; transform: rotate(-45deg);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: 0 4px 10px rgba(6,20,32,0.45);
+  border:2px solid rgba(255,255,255,0.85);
+}
+.pin span{ transform: rotate(45deg); font-size:12px; }
+.pin.hotel{ background: linear-gradient(160deg, var(--gold) 0%, var(--gold-deep) 100%); }
+.pin.transit{ background: linear-gradient(160deg, var(--sage) 0%, #278571 100%); }
+.pin.safe{ background: linear-gradient(160deg, var(--terracotta) 0%, var(--terracotta-deep) 100%); }
+.pin.toilet{ background: linear-gradient(160deg, var(--dusk) 0%, #24404F 100%); }
+.pin.me{
+  background:#fff;
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.25), 0 4px 10px rgba(6,20,32,0.45);
+}
+
+/* =========================================================
+   Polish for existing splash / setup markup
+   (matches the current index.html structure, no HTML changes)
+========================================================= */
+#splash .illo-wrap{ position:relative; z-index:2; filter: drop-shadow(0 14px 30px rgba(10,40,70,0.3)); }
+#splash h1{
+  position:relative; z-index:2;
+  font-family:'Fraunces', serif; font-size:36px; font-weight:700; margin:18px 0 0 0;
+  letter-spacing:0.03em; color:#fff; text-transform:uppercase;
+  text-shadow: 0 3px 20px rgba(15,55,90,0.45);
+}
+#splash p{
+  position:relative; z-index:2;
+  margin:8px 0 0 0; color:rgba(255,255,255,0.92); font-size:12.5px;
+  letter-spacing:0.2em; text-transform:uppercase; font-weight:500;
+}
+.brand-title{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  margin: 18px 0 20px 0; position:relative; z-index:2;
+}
+.brand-title h1{
+  font-size:23px; font-weight:700; margin:0; color:var(--ink); letter-spacing:0.01em;
+}
