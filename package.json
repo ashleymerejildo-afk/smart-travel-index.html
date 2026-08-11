@@ -1,0 +1,9 @@
+{
+  "name": "smart-travel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Smart Travel — planificador de viajes con mapa de lugares cercanos",
+  "engines": {
+    "node": ">=18"
+  }
+}

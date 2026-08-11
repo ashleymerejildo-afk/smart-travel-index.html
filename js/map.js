@@ -1,18 +1,22 @@
 // map.js — Leaflet + Geoapify integration
 "use strict";
 
-// ⚠️ Para producción: mueve esta key a variables de entorno / backend,
-// no la dejes visible en un archivo JS público.
-const GEOAPIFY_API_KEY = "31c7d4b9ddfc45cc8ed3ab19a74e3391";
+// The Geoapify key used to be hardcoded here and shipped straight to every
+// visitor's browser (anyone could open devtools and lift it). Requests now
+// go through same-origin serverless proxies (/api/geocode, /api/places) so
+// the real key only ever lives server-side, in Vercel's environment
+// variables. See /api/geocode.js and /api/places.js.
+const GEOCODE_ENDPOINT = "/api/geocode";
+const PLACES_ENDPOINT = "/api/places";
 
 const CATS = {
-  hotel:   { label: "Lodging",         icon: "🛏" },
-  transit: { label: "Transportation",  icon: "🚉" },
-  safe:    { label: "Safe station",    icon: "🛡" },
-  toilet:  { label: "Public restroom", icon: "🚻" },
+  hotel:   { label: "Lodging",          icon: "🛏" },
+  transit: { label: "Transportation",   icon: "🚉" },
+  safe:    { label: "Safe station",     icon: "🛡" },
+  toilet:  { label: "Public restroom",  icon: "🚻" },
 };
 
-// Mapea cada categoría propia a categorías de Geoapify Places API
+// Maps our own categories to Geoapify Places API categories
 const GEOAPIFY_CATEGORIES = {
   hotel:   "accommodation.hotel,accommodation.hostel,accommodation.guest_house",
   transit: "public_transport",
@@ -40,14 +44,34 @@ function initMapOnce() {
 
   setTimeout(() => map.invalidateSize(), 200);
 
-  document.getElementById('chips').addEventListener('click', (e) => {
-    const chip = e.target.closest('.chip');
-    if (!chip) return;
+  function toggleChip(chip) {
     const cat = chip.dataset.cat;
-    if (activeCats.has(cat)) { activeCats.delete(cat); chip.classList.remove('active'); }
-    else { activeCats.add(cat); chip.classList.add('active'); }
+    if (activeCats.has(cat)) {
+      activeCats.delete(cat);
+      chip.classList.remove('active');
+      chip.setAttribute('aria-pressed', 'false');
+    } else {
+      activeCats.add(cat);
+      chip.classList.add('active');
+      chip.setAttribute('aria-pressed', 'true');
+    }
     renderBoard();
     renderMarkers();
+  }
+
+  document.getElementById('chips').addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (chip) toggleChip(chip);
+  });
+
+  // Keyboard support: chips are role="button" divs, so Enter/Space need
+  // manual wiring for a11y (native <button> elements would get this free).
+  document.getElementById('chips').addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    e.preventDefault();
+    toggleChip(chip);
   });
 
   document.getElementById('closeDetail').addEventListener('click', () => {
@@ -81,11 +105,12 @@ function escapeHtml(str) {
   return str.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-// ---------- Destination search (Geoapify Geocoding API) ----------
+// ---------- Destination search (via /api/geocode proxy) ----------
 async function goSearch(query) {
+  if (!query || !query.trim()) return;
   setStatus("Searching destination…", true);
   try {
-    const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(query)}&type=city&format=json&limit=1&apiKey=${GEOAPIFY_API_KEY}`;
+    const url = `${GEOCODE_ENDPOINT}?text=${encodeURIComponent(query)}`;
     const resp = await fetch(url);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
@@ -105,16 +130,14 @@ async function goSearch(query) {
   }
 }
 
-// ---------- Nearby places (Geoapify Places API) ----------
+// ---------- Nearby places (via /api/places proxy) ----------
 async function fetchNearby(lat, lng) {
   setStatus("Searching nearby places…", true);
   document.getElementById('board').innerHTML = `<div class="empty-state">Checking the map…</div>`;
   const radius = 1500;
   const categories = Object.values(GEOAPIFY_CATEGORIES).join(",");
-  const url = `https://api.geoapify.com/v2/places?categories=${categories}` +
-              `&filter=circle:${lng},${lat},${radius}` +
-              `&bias=proximity:${lng},${lat}` +
-              `&limit=100&apiKey=${GEOAPIFY_API_KEY}`;
+  const url = `${PLACES_ENDPOINT}?categories=${encodeURIComponent(categories)}` +
+              `&lat=${lat}&lng=${lng}&radius=${radius}&limit=100`;
   try {
     const resp = await fetch(url);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -187,9 +210,9 @@ function renderBoard() {
 
   board.innerHTML = visible.map(r => {
     const d = fmtDist(r.dist);
-    return `<div class="row" data-id="${r.id}">
+    return `<div class="row" data-id="${r.id}" role="button" tabindex="0" aria-label="${escapeHtml(r.name)}, ${CATS[r.cat].label}, ${walkMinutes(r.dist)} min walk">
       <div class="row-bar ${r.cat}"></div>
-      <div class="row-icon">${CATS[r.cat].icon}</div>
+      <div class="row-icon" aria-hidden="true">${CATS[r.cat].icon}</div>
       <div class="row-main">
         <div class="row-name">${escapeHtml(r.name)}</div>
         <div class="row-sub">${CATS[r.cat].label} · ${walkMinutes(r.dist)} min walk</div>
@@ -200,6 +223,12 @@ function renderBoard() {
 
   board.querySelectorAll('.row').forEach(row => {
     row.addEventListener('click', () => {
+      const item = results.find(r => String(r.id) === row.dataset.id);
+      if (item) selectItem(item);
+    });
+    row.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
       const item = results.find(r => String(r.id) === row.dataset.id);
       if (item) selectItem(item);
     });
