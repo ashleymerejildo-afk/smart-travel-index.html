@@ -53,16 +53,12 @@ button{ font-family:'Inter', sans-serif; }
 
 .screen{
   position:fixed; inset:0;
-  width:100%; height:100%; height:100dvh; /* dvh fallback for mobile browsers with dynamic toolbars */
   display:none;
 }
 .screen.active{ display:flex; }
 
 /* =========================================================
    SPLASH SCREEN — cinematic sky, sun & flight path
-   (unused legacy badge/cloud markup removed — the live splash
-   in index.html uses the simple sunburst SVG + h1/p, styled
-   further down under "Polish for existing splash markup")
 ========================================================= */
 #splash{
   position:relative;
@@ -72,8 +68,23 @@ button{ font-family:'Inter', sans-serif; }
   text-align:center; gap:0;
   cursor:pointer;
   overflow:hidden;
-  animation: fadeOut .5s ease 2.05s forwards;
+  animation: fadeOut .6s ease 2.05s forwards;
 }
+
+#splash .cloud-layer{ position:absolute; inset:0; pointer-events:none; z-index:1; }
+#splash .cloud{
+  position:absolute; background:#FFFFFF; border-radius:50%;
+  filter: blur(1px);
+  opacity:0;
+  animation: cloudDrift 7s ease-in-out infinite, cloudIn .9s ease forwards;
+}
+#splash .cloud.c1{ width:170px; height:56px; top:16%; left:-10%; opacity:0.55; animation-delay:0s,.05s; }
+#splash .cloud.c2{ width:120px; height:42px; top:66%; left:70%; opacity:0.4; animation-delay:.6s,.25s; }
+#splash .cloud.c3{ width:90px; height:34px; top:78%; left:8%; opacity:0.32; animation-delay:1.1s,.4s; }
+#splash .cloud.c4{ width:140px; height:46px; top:10%; left:64%; opacity:0.4; animation-delay:.3s,.15s; }
+@keyframes cloudIn{ to{ opacity:1; } }
+@keyframes cloudDrift{ 0%{ transform:translateX(0);} 50%{ transform:translateX(18px);} 100%{ transform:translateX(0);} }
+
 #splash::before{
   content:"";
   position:absolute; top:38%; left:50%; width:560px; height:560px;
@@ -84,24 +95,66 @@ button{ font-family:'Inter', sans-serif; }
   pointer-events:none;
   z-index:0;
 }
+#splash .sun-glow{
+  position:absolute; top:38%; left:50%; width:360px; height:360px;
+  transform:translate(-50%,-50%); border-radius:50%;
+  background:
+    radial-gradient(circle, rgba(255,250,225,0.98) 0%, rgba(255,224,140,0.6) 32%, rgba(255,193,92,0.24) 56%, rgba(255,193,92,0) 78%);
+  filter: blur(1px);
+  animation: sunPulse 3.4s ease-in-out infinite;
+  z-index:0;
+}
 @keyframes raySpin{ to{ transform:translate(-50%,-50%) rotate(360deg); } }
+@keyframes sunPulse{ 0%,100%{ opacity:1; transform:translate(-50%,-50%) scale(1); } 50%{ opacity:0.9; transform:translate(-50%,-50%) scale(1.07); } }
+
+.badge-svg{
+  position:relative; z-index:2; width:min(70vw, 300px); height:auto; overflow:visible;
+  filter: drop-shadow(0 14px 34px rgba(10,40,70,0.32));
+}
+#badgeRing{
+  stroke-dasharray:628; stroke-dashoffset:628;
+  animation: drawRing .75s var(--ease-out) forwards;
+}
+@keyframes drawRing{ to{ stroke-dashoffset:0; } }
+#eyeL, #eyeR{ opacity:0; animation: eyeIn .3s ease .55s forwards; }
+#eyeR{ animation-delay:.62s; }
+@keyframes eyeIn{ to{ opacity:1; } }
+#smileArc{
+  stroke-dasharray:170; stroke-dashoffset:170;
+  animation: drawSmile .8s cubic-bezier(.4,.1,.3,1) .75s forwards;
+}
+@keyframes drawSmile{ to{ stroke-dashoffset:0; } }
+#planeTrail{
+  stroke-dasharray:170; stroke-dashoffset:170;
+  filter: drop-shadow(0 0 6px rgba(143,209,240,0.9));
+  animation: drawTrail .8s cubic-bezier(.4,.1,.3,1) .75s forwards;
+}
+@keyframes drawTrail{ to{ stroke-dashoffset:0; } }
+#planeGroup{ opacity:0; animation: planeAppear .05s linear .75s forwards; }
+#planeGroup .jet-body{ filter: drop-shadow(0 2px 3px rgba(10,40,70,0.35)); }
+@keyframes planeAppear{ to{ opacity:1; } }
+
+.splash-logo{
+  position:relative; z-index:2;
+  margin-top:24px; opacity:0; transform:translateY(12px);
+  animation: fadeInLogo .8s var(--ease-out) 1.55s forwards;
+}
+.splash-logo h1{
+  font-family:'Fraunces', serif;
+  font-size:36px; font-weight:700; margin:0; letter-spacing:0.045em; color:#fff;
+  text-transform:uppercase;
+  text-shadow: 0 3px 22px rgba(15,55,90,0.45);
+}
+.splash-logo p{
+  margin:8px 0 0 0; color:rgba(255,255,255,0.92); font-size:12.5px; letter-spacing:0.22em; text-transform:uppercase;
+  font-weight:500;
+}
+@keyframes fadeInLogo{ to{ opacity:1; transform:translateY(0); } }
 @keyframes fadeOut{ to { opacity:0; visibility:hidden; pointer-events:none; } }
 @media (prefers-reduced-motion: reduce){
-  #splash{ animation:none !important; }
   #splash *{ animation:none !important; }
-}
-
-/* Keyboard focus visibility for interactive elements (a11y) */
-.transport-opt:focus-visible,
-.chip:focus-visible,
-.row:focus-visible,
-.route-swap:focus-visible,
-.back-btn:focus-visible,
-.close:focus-visible,
-.destination-input:focus-visible,
-.route-field input:focus-visible{
-  outline: 2.5px solid var(--terracotta);
-  outline-offset: 2px;
+  #badgeRing, #smileArc, #planeTrail{ stroke-dashoffset:0; }
+  #eyeL, #eyeR, #planeGroup, .splash-logo{ opacity:1; transform:none; }
 }
 
 /* =========================================================

@@ -8,29 +8,12 @@ const arrivalInput = document.getElementById('arrivalInput');
 const startBtn = document.getElementById('startTripBtn');
 const hintText = document.querySelector('.hint-text');
 
-function selectTransport(opt) {
-  document.querySelectorAll('.transport-opt').forEach(o => {
-    o.classList.remove('selected');
-    o.setAttribute('aria-checked', 'false');
-  });
-  opt.classList.add('selected');
-  opt.setAttribute('aria-checked', 'true');
-  selectedTransport = opt.dataset.t;
-}
-
 document.getElementById('transportList').addEventListener('click', (e) => {
   const opt = e.target.closest('.transport-opt');
-  if (opt) selectTransport(opt);
-});
-
-// Keyboard support: these are role="radio" divs, not native inputs,
-// so Enter/Space need to be wired up manually for a11y.
-document.getElementById('transportList').addEventListener('keydown', (e) => {
-  if (e.key !== 'Enter' && e.key !== ' ') return;
-  const opt = e.target.closest('.transport-opt');
   if (!opt) return;
-  e.preventDefault();
-  selectTransport(opt);
+  document.querySelectorAll('.transport-opt').forEach(o => o.classList.remove('selected'));
+  opt.classList.add('selected');
+  selectedTransport = opt.dataset.t;
 });
 
 document.getElementById('swapBtn').addEventListener('click', () => {

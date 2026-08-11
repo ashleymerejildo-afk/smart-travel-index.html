@@ -1,22 +1,20 @@
 // map.js — Leaflet + Geoapify integration
 "use strict";
 
-// The Geoapify key used to be hardcoded here and shipped straight to every
-// visitor's browser (anyone could open devtools and lift it). Requests now
-// go through same-origin serverless proxies (/api/geocode, /api/places) so
-// the real key only ever lives server-side, in Vercel's environment
-// variables. See /api/geocode.js and /api/places.js.
+// La API key ya NO vive aquí. Las llamadas van a /api/geocode y /api/places,
+// que son funciones serverless de Vercel que usan la key desde una variable
+// de entorno del servidor (GEOAPIFY_API_KEY). Así nunca llega al navegador.
 const GEOCODE_ENDPOINT = "/api/geocode";
 const PLACES_ENDPOINT = "/api/places";
 
 const CATS = {
-  hotel:   { label: "Lodging",          icon: "🛏" },
-  transit: { label: "Transportation",   icon: "🚉" },
-  safe:    { label: "Safe station",     icon: "🛡" },
-  toilet:  { label: "Public restroom",  icon: "🚻" },
+  hotel:   { label: "Lodging",         icon: "🛏" },
+  transit: { label: "Transportation",  icon: "🚉" },
+  safe:    { label: "Safe station",    icon: "🛡" },
+  toilet:  { label: "Public restroom", icon: "🚻" },
 };
 
-// Maps our own categories to Geoapify Places API categories
+// Mapea cada categoría propia a categorías de Geoapify Places API
 const GEOAPIFY_CATEGORIES = {
   hotel:   "accommodation.hotel,accommodation.hostel,accommodation.guest_house",
   transit: "public_transport",
@@ -44,34 +42,14 @@ function initMapOnce() {
 
   setTimeout(() => map.invalidateSize(), 200);
 
-  function toggleChip(chip) {
-    const cat = chip.dataset.cat;
-    if (activeCats.has(cat)) {
-      activeCats.delete(cat);
-      chip.classList.remove('active');
-      chip.setAttribute('aria-pressed', 'false');
-    } else {
-      activeCats.add(cat);
-      chip.classList.add('active');
-      chip.setAttribute('aria-pressed', 'true');
-    }
-    renderBoard();
-    renderMarkers();
-  }
-
   document.getElementById('chips').addEventListener('click', (e) => {
     const chip = e.target.closest('.chip');
-    if (chip) toggleChip(chip);
-  });
-
-  // Keyboard support: chips are role="button" divs, so Enter/Space need
-  // manual wiring for a11y (native <button> elements would get this free).
-  document.getElementById('chips').addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter' && e.key !== ' ') return;
-    const chip = e.target.closest('.chip');
     if (!chip) return;
-    e.preventDefault();
-    toggleChip(chip);
+    const cat = chip.dataset.cat;
+    if (activeCats.has(cat)) { activeCats.delete(cat); chip.classList.remove('active'); }
+    else { activeCats.add(cat); chip.classList.add('active'); }
+    renderBoard();
+    renderMarkers();
   });
 
   document.getElementById('closeDetail').addEventListener('click', () => {
@@ -107,7 +85,6 @@ function escapeHtml(str) {
 
 // ---------- Destination search (via /api/geocode proxy) ----------
 async function goSearch(query) {
-  if (!query || !query.trim()) return;
   setStatus("Searching destination…", true);
   try {
     const url = `${GEOCODE_ENDPOINT}?text=${encodeURIComponent(query)}`;
@@ -210,9 +187,9 @@ function renderBoard() {
 
   board.innerHTML = visible.map(r => {
     const d = fmtDist(r.dist);
-    return `<div class="row" data-id="${r.id}" role="button" tabindex="0" aria-label="${escapeHtml(r.name)}, ${CATS[r.cat].label}, ${walkMinutes(r.dist)} min walk">
+    return `<div class="row" data-id="${r.id}">
       <div class="row-bar ${r.cat}"></div>
-      <div class="row-icon" aria-hidden="true">${CATS[r.cat].icon}</div>
+      <div class="row-icon">${CATS[r.cat].icon}</div>
       <div class="row-main">
         <div class="row-name">${escapeHtml(r.name)}</div>
         <div class="row-sub">${CATS[r.cat].label} · ${walkMinutes(r.dist)} min walk</div>
@@ -223,12 +200,6 @@ function renderBoard() {
 
   board.querySelectorAll('.row').forEach(row => {
     row.addEventListener('click', () => {
-      const item = results.find(r => String(r.id) === row.dataset.id);
-      if (item) selectItem(item);
-    });
-    row.addEventListener('keydown', (e) => {
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      e.preventDefault();
       const item = results.find(r => String(r.id) === row.dataset.id);
       if (item) selectItem(item);
     });
