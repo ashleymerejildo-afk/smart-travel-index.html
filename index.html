@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Travel — Planifica tu viaje</title>
+<title>Smart Travel — Plan your trip</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -40,7 +40,7 @@
     </svg>
   </div>
   <h1>Smart Travel</h1>
-  <p>Planifica tu viaje</p>
+  <p>Plan your trip</p>
 </div>
 
 <!-- ============================================================
@@ -79,36 +79,36 @@
       <h1>Smart Travel</h1>
     </div>
 
-    <label class="field-label first">Destino</label>
-    <input class="destination-input" id="destinationInput" type="text" placeholder="¿A dónde vas? Ej. Madrid, España" />
+    <label class="field-label first" for="destinationInput">Destination</label>
+    <input class="destination-input" id="destinationInput" type="text" placeholder="Where are you going? E.g. Madrid, Spain" autocomplete="off" />
 
-    <label class="field-label">Ruta</label>
-    <div class="route-row">
+    <label class="field-label" id="routeLabel">Route</label>
+    <div class="route-row" role="group" aria-labelledby="routeLabel">
       <div class="route-field departure">
-        <label>Salida</label>
-        <input id="departureInput" type="text" placeholder="Ciudad de origen" />
+        <label for="departureInput">Departure</label>
+        <input id="departureInput" type="text" placeholder="Origin city" autocomplete="off" />
       </div>
-      <button class="route-swap" id="swapBtn" title="Intercambiar" type="button">⇄</button>
+      <button class="route-swap" id="swapBtn" title="Swap" aria-label="Swap departure and arrival" type="button">⇄</button>
       <div class="route-field">
-        <label>Llegada</label>
-        <input id="arrivalInput" type="text" placeholder="Ciudad de llegada" />
+        <label for="arrivalInput">Arrival</label>
+        <input id="arrivalInput" type="text" placeholder="Destination city" autocomplete="off" />
       </div>
     </div>
 
-    <label class="field-label">Transporte</label>
-    <div class="transport-list" id="transportList">
-      <div class="transport-opt" data-t="bus"><span class="icon">🚌</span><span class="label">Autobús</span></div>
-      <div class="transport-opt" data-t="train"><span class="icon">🚆</span><span class="label">Tren</span></div>
-      <div class="transport-opt" data-t="metro"><span class="icon">🚇</span><span class="label">Metro</span></div>
-      <div class="transport-opt" data-t="plane"><span class="icon">✈️</span><span class="label">Avión</span></div>
-      <div class="transport-opt" data-t="taxi"><span class="icon">🚕</span><span class="label">Taxi / Uber</span></div>
-      <div class="transport-opt" data-t="walk"><span class="icon">🚶</span><span class="label">A pie</span></div>
+    <label class="field-label" id="transportLabel">Transport</label>
+    <div class="transport-list" id="transportList" role="radiogroup" aria-labelledby="transportLabel">
+      <div class="transport-opt" data-t="bus" role="radio" aria-checked="false" tabindex="0"><span class="icon" aria-hidden="true">🚌</span><span class="label">Bus</span></div>
+      <div class="transport-opt" data-t="train" role="radio" aria-checked="false" tabindex="0"><span class="icon" aria-hidden="true">🚆</span><span class="label">Train</span></div>
+      <div class="transport-opt" data-t="metro" role="radio" aria-checked="false" tabindex="0"><span class="icon" aria-hidden="true">🚇</span><span class="label">Metro</span></div>
+      <div class="transport-opt" data-t="plane" role="radio" aria-checked="false" tabindex="0"><span class="icon" aria-hidden="true">✈️</span><span class="label">Plane</span></div>
+      <div class="transport-opt" data-t="taxi" role="radio" aria-checked="false" tabindex="0"><span class="icon" aria-hidden="true">🚕</span><span class="label">Taxi / Uber</span></div>
+      <div class="transport-opt" data-t="walk" role="radio" aria-checked="false" tabindex="0"><span class="icon" aria-hidden="true">🚶</span><span class="label">Walk</span></div>
     </div>
   </div>
 
   <div class="cta-bar">
     <button class="start-btn" id="startTripBtn" disabled>Start Trip</button>
-    <div class="hint-text">Ingresa tu destino para comenzar</div>
+    <div class="hint-text" id="hintText" aria-live="polite">Enter your destination to get started</div>
   </div>
 </div>
 
@@ -119,50 +119,50 @@
   <div class="results-layout">
     <aside class="results-panel">
       <div class="results-top">
-        <button class="back-btn" id="backBtn">←</button>
+        <button class="back-btn" id="backBtn" aria-label="Back to trip setup">←</button>
         <div>
-          <h2 id="resultsTitle">Tu viaje</h2>
+          <h2 id="resultsTitle">Your trip</h2>
           <p id="resultsSubtitle">—</p>
         </div>
       </div>
 
-      <div class="status-line">
+      <div class="status-line" aria-live="polite">
         <span class="pulse-dot off" id="statusDot"></span>
-        <span id="statusText">Preparando resultados…</span>
+        <span id="statusText">Preparing results…</span>
       </div>
 
-      <div class="chips" id="chips">
-        <div class="chip active" data-cat="hotel"><span class="dot" style="background:var(--gold)"></span>Hospedaje <span class="count" id="count-hotel">0</span></div>
-        <div class="chip active" data-cat="transit"><span class="dot" style="background:var(--sage)"></span>Transporte <span class="count" id="count-transit">0</span></div>
-        <div class="chip active" data-cat="safe"><span class="dot" style="background:var(--terracotta)"></span>Estaciones seguras <span class="count" id="count-safe">0</span></div>
-        <div class="chip active" data-cat="toilet"><span class="dot" style="background:var(--dusk)"></span>Baños <span class="count" id="count-toilet">0</span></div>
+      <div class="chips" id="chips" role="group" aria-label="Filter by category">
+        <div class="chip active" data-cat="hotel" role="button" tabindex="0" aria-pressed="true"><span class="dot" style="background:var(--gold)"></span>Lodging <span class="count" id="count-hotel">0</span></div>
+        <div class="chip active" data-cat="transit" role="button" tabindex="0" aria-pressed="true"><span class="dot" style="background:var(--sage)"></span>Transportation <span class="count" id="count-transit">0</span></div>
+        <div class="chip active" data-cat="safe" role="button" tabindex="0" aria-pressed="true"><span class="dot" style="background:var(--terracotta)"></span>Safe stations <span class="count" id="count-safe">0</span></div>
+        <div class="chip active" data-cat="toilet" role="button" tabindex="0" aria-pressed="true"><span class="dot" style="background:var(--dusk)"></span>Restrooms <span class="count" id="count-toilet">0</span></div>
       </div>
 
       <div class="board-head">
-        <h3>Más cercanos</h3>
+        <h3>Nearby</h3>
         <span id="resultMeta">—</span>
       </div>
       <div class="board" id="board">
-        <div class="empty-state">Cargando…</div>
+        <div class="empty-state">Loading…</div>
       </div>
     </aside>
 
     <div style="position:relative;">
       <div id="resultsMap"></div>
-      <div class="detail-card" id="detailCard">
-        <button class="close" id="closeDetail">✕</button>
+      <div class="detail-card" id="detailCard" role="dialog" aria-labelledby="detailName">
+        <button class="close" id="closeDetail" aria-label="Close detail">✕</button>
         <div class="cat-tag" id="detailTag">—</div>
         <h3 id="detailName">—</h3>
         <p id="detailMeta">—</p>
-        <button class="btn-primary" id="directionsBtn">Cómo llegar</button>
+        <button class="btn-primary" id="directionsBtn">Get directions</button>
       </div>
     </div>
   </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="js/navigation.js"></script>
-<script src="js/map.js"></script>
-<script src="js/setup.js"></script>
+<script src="navigation.js"></script>
+<script src="map.js"></script>
+<script src="setup.js"></script>
 </body>
 </html>
